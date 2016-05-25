@@ -27,11 +27,12 @@ Send simple HTTP POST request to the server.
 Example :
 
 ```sh
-curl --data "This line will be write in the output file open by the Log-HTTP2File server" \
+curl -X POST \
+     --data "This line will be write in the output file open by the Log-HTTP2File server" \
+     --header "Content-Type:text/plain" \
       http://localhost:8142
 ```
 
-## Contributing
 
 ## License
 
