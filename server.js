@@ -1,5 +1,13 @@
 "use strict"
 
+/* ---------------------------------------------------------------------------
+Log-HTTP2File - https://github.com/fabrom/log-http2file
+Simple HTTP server to log POST request content to file
+Author: Fabrice Romand <fabrice.romand@gmail.com>
+README for more information
+---------------------------------------------------------------------------- */
+
+// Requirements ----
 const http = require('http');
 const fs = require('fs');
 const cluster = require('cluster');
@@ -7,13 +15,14 @@ const numCPUs = require('os').cpus().length;
 const tmpdir = require('os').tmpdir();
 const path = require('path');
 
+// Variables declaration ----
 var prg_package = null;
 var port = (process.env.npm_package_config_port) ? process.env.npm_package_config_port : 8142;
 var nb_workers = (numCPUs/2)+1
 var tmplogfile = path.join(tmpdir, 'message.log');
 var output_file = (process.argv.length > 2) ? process.argv[process.argv.length - 1] : tmplogfile;
 
-
+// Retrieve request source address
 function getRemoteAddress(req) {
     if (req.headers['x-forwarded-for']) {
         return req.headers['x-forwarded-for'];
@@ -21,6 +30,7 @@ function getRemoteAddress(req) {
     return req.connection.remoteAddress;
 }
 
+// Retrieve request user-agent
 function getRemoteAgent(req) {
     if (req.headers['user-agent']) {
         return req.headers['user-agent'];
@@ -28,6 +38,8 @@ function getRemoteAgent(req) {
     return null;
 }
 
+// Retrieve remote user
+// FIXME: Seems to failed
 function getRemoteUser(req) {
     if (req.headers['remote_user']) {
         return req.headers['remote_user'];
@@ -35,14 +47,17 @@ function getRemoteUser(req) {
     return null;
 }
 
+// Return Object in string is JSON, null otherwise
 function isJSON(jsonString) {
     try {
-      json = JSON.parse(jsonString);
+      var json = JSON.parse(jsonString);
     } catch (exception) {
       json = null;
     }
     return json;
 }
+
+// Main -----------------------------------------------------------------------
 
 if (cluster.isMaster) {
 
