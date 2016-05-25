@@ -1,14 +1,17 @@
+"use strict"
 
 const http = require('http');
 const fs = require('fs');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
+const tmpdir = require('os').tmpdir();
 const path = require('path');
 
 var prg_package = null;
 var port = (process.env.npm_package_config_port) ? process.env.npm_package_config_port : 8142;
 var nb_workers = (numCPUs/2)+1
-var output_file = process.argv[process.argv.length - 1];
+var tmplogfile = path.join(tmpdir, 'message.log');
+var output_file = (process.argv.length > 2) ? process.argv[process.argv.length - 1] : tmplogfile;
 
 
 function getRemoteAddress(req) {
@@ -16,6 +19,29 @@ function getRemoteAddress(req) {
         return req.headers['x-forwarded-for'];
     }
     return req.connection.remoteAddress;
+}
+
+function getRemoteAgent(req) {
+    if (req.headers['user-agent']) {
+        return req.headers['user-agent'];
+    }
+    return null;
+}
+
+function getRemoteUser(req) {
+    if (req.headers['remote_user']) {
+        return req.headers['remote_user'];
+    }
+    return null;
+}
+
+function isJSON(jsonString) {
+    try {
+      json = JSON.parse(jsonString);
+    } catch (exception) {
+      json = null;
+    }
+    return json;
 }
 
 if (cluster.isMaster) {
@@ -47,7 +73,8 @@ if (cluster.isMaster) {
         } else {
             const server = http.createServer((request, response) => {
                 if (request.method !== 'POST') {
-                    request.socket.end('HTTP/1.1 405 Bad Request\r\n\r\n');
+                    response.statusCode = 405;
+                    response.end();
                 } else {
                     var body = '';
                     request.on('data', function (data) {
@@ -59,21 +86,38 @@ if (cluster.isMaster) {
                         }
                     });
                     request.on('end', function () {
-                        console.log((new Date()).toJSON() +
-                            " ["+ getRemoteAddress(request) +
-                            "][" + cluster.worker.process.pid +
-                            "][" + path.basename(output_file) +
-                            "] " + body);
+                        var remote_address = getRemoteAddress(request);
+                        var remote_user = getRemoteUser(request);
+                        var body_object = isJSON(body);
+                        var remote_object = { 
+                                address: remote_address,
+                                user: remote_user,
+                                agent: getRemoteAgent(request)
+                        };
+                        if (body_object instanceof Object) {
+                            body_object.remote = remote_object;
+                            body = JSON.stringify(body_object);
+                        };
                         fs.write(flogd, body + '\n', function() {
-                            request.socket.end('HTTP/1.1 200 Ok\r\n\r\n');
+                            response.statusCode = 200;
+                            response.end();
                         });
+                        var continuation = (body.length > 128) ? "..." : "";
+                        var message = body.substr(1, 128);
+                        console.log(Date.now() +
+                            " [" + remote_address +
+                            "][" + cluster.worker.process.pid + 
+                            "][" + path.basename(output_file) +
+                            "] " + message + continuation
+                        );
                     });
 
                 }
             });
 
             server.on('clientError', (err, socket) => {
-                socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+                socket.statusCode = 400;
+                socket.end();
             });
 
             server.on('close', (err, socket) => {
