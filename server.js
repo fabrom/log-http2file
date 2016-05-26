@@ -122,7 +122,6 @@ if (cluster.isMaster) {
                         console.log(Date.now() +
                             " [" + remote_address +
                             "][" + cluster.worker.process.pid + 
-                            "][" + path.basename(output_file) +
                             "] " + message + continuation
                         );
                     });

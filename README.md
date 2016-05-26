@@ -15,6 +15,8 @@ To download a zip, go to the Log-HTTP2File on Github
 npm start [options] output_file_path
 ```
 
+Look at [forever](https://github.com/foreverjs/forever) tool for running this server in production.
+
 ##### Options
 
 - **-w** _workers count_          (default=(CPUs/2)+1)
@@ -32,6 +34,10 @@ curl -X POST \
      --header "Content-Type:text/plain" \
       http://localhost:8142
 ```
+
+### Monitoring
+
+You should look at [log.io](http://logio.org) for log monitoring.
 
 
 ## License
