@@ -1,26 +1,34 @@
 {
   "name": "log-http2file",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Simple HTTP server to log POST request content to file",
   "author": "Fabrice Romand <fabrice.romand@gmail.com>",
   "license": "MIT",
-  
   "homepage": "https://github.com/fabrom/log-http2file",
   "bugs": "https://github.com/fabrom/log-http2file/issues",
-  "keywords": ["logging", "log", "http", "file", "client"],
-  
+  "keywords": [
+    "logging",
+    "log",
+    "http",
+    "file",
+    "client"
+  ],
   "main": "server.js",
-  "config" : {
-    "port" : 8142
+  "config": {
+    "port": 8142
   },
-  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-
   "optionalDependencies": {
     "forever": "^0.15.1",
     "log.io": "^0.3.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
+  },
+  "dependencies": {
+    "commander": "^2.9.0"
   }
 }
