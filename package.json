@@ -13,13 +13,15 @@
     "file",
     "client"
   ],
-  "main": "server.js",
+  "bin": {
+    "log-http2file": "log-http2file.js"
+  },
   "config": {
     "port": 8142
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "mocha",
+    "start": "node log-http2file.js"
   },
   "optionalDependencies": {
     "forever": "^0.15.1",

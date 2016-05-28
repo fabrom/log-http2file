@@ -1,14 +1,10 @@
 # ChangeLog
 
-## 2016-05-27 - 0.2.0
+## 2016-05-28 - 0.2.0
 
 - introduce command line _log-http2file_
 - options and arguments management
 ```sh
-log-http2file v.0.2.0 - Simple HTTP server to log POST request content to file
-Author: Fabrice Romand <fabrice.romand@gmail.com> - Homepage: https://github.com/fabrom/log-http2file
-Report bugs on https://github.com/fabrom/log-http2file/issues
-
   Usage: log-http2file [options] <outputfile>
 
   Options:

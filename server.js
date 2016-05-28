@@ -40,7 +40,6 @@ function getRemoteAgent(req) {
 }
 
 // Retrieve remote user
-// FIXME: Seems to failed
 function getRemoteUser(req) {
     if (req.headers['remote_user']) {
         return req.headers['remote_user'];
@@ -77,25 +76,26 @@ function setWorkers() {
 
 function startServer(onReadyCallBack) {
     
+    const program = require('commander');
+    
+    prg_package = JSON.parse(fs.readFileSync(path.join(__dirname,'package.json'), 'utf8'));
+    program
+        .version(prg_package.version)
+        .description(prg_package.description)
+        .usage('[options] <outputfile>')
+        .option('-w, --workers <n>', 'how many listening workers', parseInt)
+        .option('-p, --port <n>', 'listening port', parseInt)
+        .arguments('<outputfile>')
+            .action(function (outputfile) {
+                output_file = outputfile;
+            })
+        .parse(process.argv);
+    
     if (cluster.isMaster) {
-        
-        const program = require('commander');
-        
-        prg_package = JSON.parse(fs.readFileSync(path.join(__dirname,'package.json'), 'utf8'));
+
         console.log(prg_package.name + " v." + prg_package.version + ' - ' + prg_package.description);
         console.log("Author: " + prg_package.author + " - Homepage: " + prg_package.homepage);
         console.log("Report bugs on " + prg_package.bugs);
-        
-        program
-            .version(prg_package.version)
-            .usage('[options] <outputfile>')
-            .option('-w, --workers <n>', 'how many listening workers', parseInt)
-            .option('-p, --port <n>', 'listening port', parseInt)
-            .arguments('<outputfile>')
-                .action(function (outputfile) {
-                    output_file = outputfile;
-                })
-            .parse(process.argv);
             
         nb_workers = program.workers || nb_workers;
         port = program.port || port;
