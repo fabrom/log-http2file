@@ -1,6 +1,6 @@
 {
   "name": "log-http2file",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Simple HTTP server to log POST request content to file",
   "author": "Fabrice Romand <fabrice.romand@gmail.com>",
   "license": "MIT",

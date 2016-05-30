@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 2016-05-30
+
+- add main process ID to file named <logfile path>.pid
+
+
 ## 2016-05-28 - 0.2.0
 
 - introduce command line _log-http2file_

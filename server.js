@@ -21,6 +21,7 @@ var prg_package = null;
 var port = (process.env.npm_package_config_port) ? process.env.npm_package_config_port : 8142;
 var nb_workers = (numCPUs/2)+1; 
 var output_file = path.join(tmpdir, 'message.log');
+var output_file_pid = output_file + '.pid';
 
 
 // Retrieve request source address
@@ -69,7 +70,6 @@ function setWorkers() {
     for (var i = 1; i <= nb_workers; i++) {
         cluster.fork();
     }
-    console.log(`Master process id: ${process.pid}`);
 }
 
 // Main -----------------------------------------------------------------------
@@ -96,6 +96,7 @@ function startServer(onReadyCallBack) {
         console.log(prg_package.name + " v." + prg_package.version + ' - ' + prg_package.description);
         console.log("Author: " + prg_package.author + " - Homepage: " + prg_package.homepage);
         console.log("Report bugs on " + prg_package.bugs);
+        console.log(`Master process id: ${process.pid}`);
             
         nb_workers = program.workers || nb_workers;
         port = program.port || port;
@@ -107,6 +108,9 @@ function startServer(onReadyCallBack) {
         cluster.on('listening', (worker, code, signal) => {
         console.log(`worker ${worker.process.pid} now listening on port ${port} and writing to ${output_file}...`);
         });
+        
+        output_file_pid = output_file + '.pid';
+        fs.writeFileSync(output_file_pid, process.pid);
         
         process.on('SIGHUP', function() {
             eachWorker(function(worker) {
@@ -221,6 +225,10 @@ function stopServer() {
 function renewServer() {
     process.kill(process.pid, 'SIGHUP');
 }
+
+process.on('exit', (code) => {
+    fs.unlinkSync(output_file_pid);
+});
 
 module.exports = exports
 exports.start = startServer;
