@@ -72,6 +72,7 @@ function setWorkers() {
     }
 }
 
+
 // Main -----------------------------------------------------------------------
 
 function startServer(onReadyCallBack) {
@@ -146,8 +147,13 @@ function startServer(onReadyCallBack) {
         });
             
         setWorkers();
-        
+
+        process.on('exit', (code) => {
+            fs.unlinkSync(output_file_pid);
+        });
+
         if (onReadyCallBack) onReadyCallBack();
+
 
     } else {
 
@@ -218,6 +224,8 @@ function startServer(onReadyCallBack) {
     }
 }
 
+
+
 function stopServer() {
     process.kill(process.pid, 'SIGTERM');
 }
@@ -226,11 +234,7 @@ function renewServer() {
     process.kill(process.pid, 'SIGHUP');
 }
 
-process.on('exit', (code) => {
-    fs.unlinkSync(output_file_pid);
-});
-
-module.exports = exports
+module.exports = exports  
 exports.start = startServer;
 exports.stop = stopServer;
 exports.renew = renewServer;
